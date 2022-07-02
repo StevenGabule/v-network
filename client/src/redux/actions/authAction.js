@@ -1,17 +1,30 @@
 import { postDataAPI } from "../../utils/fetchData";
-
-export const TYPES = {
-  AUTH: 'AUTH'
-}
+import { GLOBAL_TYPES } from "./globalTypes";
 
 export const login = (data) => async (dispatch) => {
   try {
-    dispatch({ type: "NOTIFY", payload: { loading: true } })
+    dispatch({ type: GLOBAL_TYPES.ALERT, payload: { loading: true } })
     const res = await postDataAPI('login', data)
+    dispatch({ type: GLOBAL_TYPES.AUTH, payload: { token: res.data.access_token, user: res.data.user } })
     localStorage.setItem('firstLogin', true)
-    dispatch({ type: "AUTH", payload: { loading: false, token: res.data.access_token, user: res.data.user } })
+    dispatch({ type: GLOBAL_TYPES.ALERT, payload: { success: res.data.message, loading: false } })
   } catch (err) {
     console.error(err.message)
-    dispatch({ type: "NOTIFY", payload: { loading: false, error: err.message } })
+    dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.message } })
   }
-} 
+}
+
+export const refreshToken = () => async (dispatch) => {
+  const firstLogin = localStorage.getItem('firstLogin')
+  if (firstLogin) {
+    dispatch({ type: GLOBAL_TYPES.ALERT, payload: { loading: true } })
+    try {
+      const res = await postDataAPI('refresh_token')
+      dispatch({ type: GLOBAL_TYPES.AUTH, payload: { token: res.data.access_token, user: res.data.user } })
+      dispatch({ type: GLOBAL_TYPES.ALERT, payload: {} })
+  } catch (err) {
+      console.error(err.message)
+      dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.message } })
+    }
+  }
+}
