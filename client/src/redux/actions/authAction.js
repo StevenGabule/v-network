@@ -42,3 +42,14 @@ export const refreshToken = () => async (dispatch) => {
     }
   }
 }
+
+export const logout = () => async(dispatch) => {
+  try {
+    localStorage.removeItem('firstLogin')
+    await postDataAPI('logout')
+    window.location.href="/"
+  } catch (err) {
+    console.error(err.message)
+    dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.message } })
+  }
+}
