@@ -5,7 +5,6 @@ import NotFound from '../components/NotFound';
 
 const generatePage = (pageName) => {
   const component = () => require(`../pages/${pageName}`).default;
-  console.log("component", component);
   try {
     return React.createElement(component())
   } catch (err) {
