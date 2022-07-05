@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\client",
+    "\\client\\src",
+    "\\client\\src\\components",
+    "\\client\\src\\customRouter",
+    "\\client\\src\\pages",
+    "\\client\\src\\pages\\profile",
+    "\\controllers",
+    "\\middleware",
+    "\\models",
+    "\\routes"
+  ],
+  "SelectedNode": "\\client\\src\\components\\Menu.js",
+  "PreviewInSolutionExplorer": false
+}

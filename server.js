@@ -11,6 +11,7 @@ app.use(cookieParser());
 
 // user authentication routes
 app.use('/api', require('./routes/authRouter'))
+app.use('/api', require('./routes/userRouter'))
 
 const URI = process.env.MONGO_DB_URI;
 mongoose.connect(URI, {
