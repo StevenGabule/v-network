@@ -1,4 +1,5 @@
-import { getDataAPI } from "../../utils/fetchData"
+import { imageUpload } from "../../utils/checkImage";
+import { getDataAPI, patchDataAPI } from "../../utils/fetchData"
 import { GLOBAL_TYPES } from "./globalTypes"
 
 export const PROFILE_TYPES = {
@@ -18,4 +19,27 @@ export const getProfileUser = ({users,id,auth}) => async (dispatch) => {
       dispatch({type: GLOBAL_TYPES.ALERT, payload: {error: err.response.data.message} })
     }
   } 
+}
+
+export const updateProfileUser = ({userData, avatar, auth}) => async(dispatch) => {
+  try {
+    let media;
+    dispatch({type: GLOBAL_TYPES.ALERT, payload: { loading: true }})
+    if (avatar) media = await imageUpload([avatar])
+    const res = await patchDataAPI('user', {
+      ...userData,
+      avatar: avatar ? media[0].url : auth.user.avatar
+    }, auth.token)
+    dispatch({type: GLOBAL_TYPES.AUTH, payload: {
+      ...auth,
+      user: {
+        ...auth.user,
+        ...userData,
+        avatar: avatar ? media[0].url : auth.user.avatar
+      }
+    }})
+    dispatch({type: GLOBAL_TYPES.ALERT, payload: {success: res.data.message}})
+  } catch (err) {
+    dispatch({type: GLOBAL_TYPES.ALERT, payload: {error: err.response.data.message} })
+  }
 }

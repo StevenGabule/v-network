@@ -17,6 +17,14 @@ const userController = {
       return res.status(500).json({message: err.message})
     }
   },
+  updateUser: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate({_id: req.user._id}, req.body);
+      return res.json({message: "Update Success!"});
+    } catch (err) {
+      return res.status(500).json({message: err.message})
+    }
+  },
 }
 
 module.exports = userController;
