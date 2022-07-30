@@ -9,8 +9,12 @@ export const checkImage = (file) => {
 export const imageUpload = async (images) => {
   let imageArr = [];
   for (const item of images) {
-    const formData = new FormData()
-    formData.append('file', item)
+    const formData = new FormData();
+    if(item.camera) {
+      formData.append('file', item.camera)
+    } else {
+      formData.append('file', item)
+    }
     formData.append('upload_preset', 'reactshop')
     formData.append('cloud_name', 'ddjx1gunj')
     const data = await (await fetch("https://api.cloudinary.com/v1_1/ddjx1gunj/image/upload", {method: "POST",body: formData})).json()
