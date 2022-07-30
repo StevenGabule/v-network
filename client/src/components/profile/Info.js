@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { GLOBAL_TYPES } from '../../redux/actions/globalTypes'
 import { getProfileUser } from '../../redux/actions/profileAction'
 import Avatar from '../Avatar'
 import FollowButton from '../FollowButton'
 import EditProfile from './EditProfile'
+import Followers from './Followers'
+import Following from './Following'
 
 const Info = () => {
   const { id } = useParams()
@@ -14,16 +17,27 @@ const Info = () => {
   const [userData, setUserData] = useState([])
   const [onEdit, setOnEdit] = useState(false)
 
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+
   useEffect(() => {
     if (id === auth.user._id) {
       setUserData([auth.user])
     } else {
-      dispatch(getProfileUser({users: profile.users, id, auth}))
+      dispatch(getProfileUser({ users: profile.users, id, auth }))
       const newData = profile.users.filter((user) => user._id === id);
       console.log('newData', newData);
       setUserData(newData);
     }
   }, [id, auth, dispatch, profile.users])
+
+  useEffect(() => {
+    if(showFollowers || showFollowing || onEdit) {
+      dispatch({type: GLOBAL_TYPES.MODAL, payload: true})
+    } else {
+      dispatch({type: GLOBAL_TYPES.MODAL, payload: false})
+    }
+  }, [dispatch,showFollowers,showFollowing,onEdit])
 
   return (
     <div className='info'>
@@ -40,19 +54,25 @@ const Info = () => {
               )}
             </div>
             <div className='follow_btn'>
-              <span className='mr-4'>{user.followers.length} Followers</span>
-              <span className='ml-4'>{user.following.length} Following</span>
+              <span className='mr-4' onClick={() => setShowFollowers(true)}>
+                {user.followers.length} Followers
+              </span>
+              <span className='ml-4' onClick={() => setShowFollowing(true)}>
+                {user.following.length} Following
+              </span>
             </div>
-            
+
             <h6>{user.fullname} | {user.mobile}</h6>
             <p className='m-0'>{user.address}</p>
             <h6>{user.email}</h6>
-            
+
             <a href={user.website} target='_blank' rel='noreferrer'>{user.website}</a>
             <p>{user.story}</p>
           </div>
           {/* Edit Profile */}
           {onEdit && <EditProfile setOnEdit={setOnEdit} />}
+          {showFollowers && <Followers users={user.followers} setShowFollowers={setShowFollowers} />}
+          {showFollowing && <Following users={user.following} setShowFollowing={setShowFollowing} />}
         </div>
       ))}
     </div>
