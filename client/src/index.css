@@ -637,6 +637,12 @@ img {
   margin: 10px 0; 
 }
 
+.comment_card .comment_content textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+}
+
 @media (max-width: 768px) {
   .header .menu {
     position: fixed;

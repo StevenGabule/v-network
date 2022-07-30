@@ -7,8 +7,7 @@ export const GLOBAL_TYPES = {
 }
 
 export const EditData = (data, id, post) => {
-  const editData = data.map(item => (item._id === id) ? post : item);
-  return editData;
+  return data.map(item => (item._id === id) ? post : item);
 }
 
 export const DeleteData = (data, id) => {
