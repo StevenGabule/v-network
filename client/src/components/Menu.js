@@ -26,7 +26,7 @@ const Menu = () => {
           </li>
         ))}
 
-        <li className="nav-item dropdown">
+        <li className="nav-item dropdown" style={{opacity: 1}}>
           <span className="nav-link position-relative" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
             <img src={auth.user.avatar} alt='avatar' className='medium-avatar' style={{ filter: `${theme ? 'invert(1)' : 'invert(0)'}` }} />
           </span>

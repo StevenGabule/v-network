@@ -20,7 +20,7 @@ const Discover = () => {
 
   const handleLoadMore = async () => {
     setLoad(true)
-    const res = await getDataAPI(`post_discover?limit=${discover.page*9}`, auth.token)
+    const res = await getDataAPI(`post_discover?num=${discover.page*9}`, auth.token)
     dispatch({type:DISCOVER_TYPES.UPDATE_POST,payload: res.data})
     setLoad(false)
   }
@@ -29,7 +29,7 @@ const Discover = () => {
     <div>
       {
         discover.loading
-        ? <img src={LoadIcon} alt="loading" className="d-block mx-auto my-4" />
+        ? <img src={LoadIcon} alt="loading" className="d-block mx-auto my-3" />
         : <PostThumb posts={discover.posts} result={discover.result} />
       }
       {
