@@ -1,4 +1,5 @@
 const Posts = require('../models/Post.model')
+const Comments = require('../models/Comment.model')
 
 class APIfeatures {
   constructor(query, queryString) {
@@ -75,9 +76,12 @@ const postCtrl = {
       const post = await Posts.find({_id: req.params.id, likes: req.user._id});
       if(post.length > 0) return res.status(400).json({msg: "You liked this post already."});
 
-      await Posts.findOneAndUpdate({_id: req.params.id}, {
+      const like = await Posts.findOneAndUpdate({_id: req.params.id}, {
         $push: { likes: req.user._id}
       }, {new: true})
+
+      if(!like) return res.status(400).json({msg: "This post does not exists."});
+
       res.json({msg: "Liked post!"})
     } catch (err) {
       return res.status(500).json({msg: err.message})
@@ -85,9 +89,12 @@ const postCtrl = {
   },
   unLikePost: async(req, res) => {
     try {
-      await Posts.findOneAndUpdate({_id: req.params.id}, {
+      const like = await Posts.findOneAndUpdate({_id: req.params.id}, {
         $pull: { likes: req.user._id}
       }, {new: true})
+
+      if(!like) return res.status(400).json({msg: "This post does not exists."});
+
       res.json({msg: "UnLiked post!"})
     } catch (err) {
       return res.status(500).json({msg: err.message})
@@ -113,6 +120,9 @@ const postCtrl = {
           select: '-password'
         }
       });
+
+      if(!post) return res.status(400).json({msg: "This post does not exists."});
+
       res.json({post})
     } catch(err) {
       return res.status(500).json({ msg: err.message })
@@ -127,6 +137,15 @@ const postCtrl = {
         result: posts.length,
         posts
       });
+    } catch(err) {
+      return res.status(500).json({ msg: err.message })
+    }
+  },
+  deletePost: async(req, res) => {
+    try {
+      const post = await Posts.findOneAndDelete({_id: req.params.id, user: req.user._id})
+      await Comments.deleteMany({_id: {$in: post.comments}})
+      res.json({msg: "Deleted Post!"})
     } catch(err) {
       return res.status(500).json({ msg: err.message })
     }

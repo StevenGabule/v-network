@@ -8,7 +8,8 @@ router.route('/posts')
 
 router.route('/post/:id')
         .patch(auth, postCtrl.updatePost)
-        .get(auth, postCtrl.getPost);
+        .get(auth, postCtrl.getPost)
+        .delete(auth, postCtrl.deletePost);
 
 router.patch('/post/:id/like', auth, postCtrl.likePost)
 router.patch('/post/:id/unlike', auth, postCtrl.unLikePost)

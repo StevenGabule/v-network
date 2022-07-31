@@ -16,6 +16,7 @@ const Posts = ({ auth, profile, dispatch, id }) => {
       if(data._id === id) {
         setPosts(data.posts)
         setResult(data.result)
+        setPage(data.page)
       }
     })
   },[profile.posts, id])
