@@ -3,23 +3,30 @@ import { getDataAPI, patchDataAPI } from "../../utils/fetchData"
 import { DeleteData, GLOBAL_TYPES } from "./globalTypes"
 
 export const PROFILE_TYPES = {
-  LOADING: "LOADING",
-  GET_USER: "GET_USER",
+  LOADING: "LOADING_PROFILE",
+  GET_USER: "GET_PROFILE_USER",
   FOLLOW: "FOLLOW",
   UN_FOLLOW: "UN_FOLLOW",
+  GET_ID: "GET_PROFILE_ID",
+  GET_POSTS: "GET_PROFILE_POSTS",
 }
 
-export const getProfileUser = ({ users, id, auth }) => async (dispatch) => {
-  console.log("users,id,auth", users, id, auth);
-  if (users.every(user => user._id !== id)) {
-    try {
-      dispatch({ type: PROFILE_TYPES.LOADING, payload: true })
-      const res = await getDataAPI(`/user/${id}`, auth.token);
-      dispatch({ type: PROFILE_TYPES.GET_USER, payload: res.data })
-      dispatch({ type: PROFILE_TYPES.LOADING, payload: false })
-    } catch (err) {
-      dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.message } })
-    }
+export const getProfileUser = ({ id, auth }) => async (dispatch) => {
+  dispatch({type: PROFILE_TYPES.GET_ID,payload: id})
+  try {
+    dispatch({ type: PROFILE_TYPES.LOADING, payload: true })
+    const res = await getDataAPI(`/user/${id}`, auth.token);
+    const res1 = await getDataAPI(`/user_posts/${id}`, auth.token);
+    
+    const users = await res;
+    const posts = await res1;
+
+    dispatch({ type: PROFILE_TYPES.GET_USER, payload: users.data })
+    dispatch({ type: PROFILE_TYPES.GET_POSTS, payload: {...posts.data, _id: id, page: 2} })
+
+    dispatch({ type: PROFILE_TYPES.LOADING, payload: false })
+  } catch (err) {
+    dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.message } })
   }
 }
 
@@ -50,13 +57,13 @@ export const updateProfileUser = ({ userData, avatar, auth }) => async (dispatch
 
 export const follow = ({ users, user, auth }) => async (dispatch) => {
   let newUser;
-  
+
   if (users.every(item => item._id !== user._id)) {
     newUser = { ...user, followers: [...user.followers, auth.user] }
   } else {
     users.forEach(item => {
       if (item._id === user._id) {
-        newUser = {...item, followers: [...item.followers, auth.user]};
+        newUser = { ...item, followers: [...item.followers, auth.user] };
       }
     });
   }
@@ -71,13 +78,12 @@ export const follow = ({ users, user, auth }) => async (dispatch) => {
 }
 
 export const unfollow = ({ users, user, auth }) => async (dispatch) => {
-
   let newUser;
   if (users.every(item => item._id !== user._id)) {
     newUser = { ...user, followers: DeleteData(user.followers, auth.user._id) }
   } else {
     users.forEach(item => {
-      if(item._id === user._id) {
+      if (item._id === user._id) {
         newUser = { ...item, followers: DeleteData(item.followers, auth.user._id) }
       }
     })
