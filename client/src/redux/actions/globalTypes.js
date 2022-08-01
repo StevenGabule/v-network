@@ -4,6 +4,7 @@ export const GLOBAL_TYPES = {
   THEME: "THEME",
   STATUS: "STATUS",
   MODAL: "MODAL",
+  SOCKET: "SOCKET",
 }
 
 export const EditData = (data, id, post) => {
