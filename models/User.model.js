@@ -52,6 +52,7 @@ const UserSchema = new mongoose.Schema({
   website: { type: String, default: ''},
   followers: [{type: mongoose.Types.ObjectId, ref: 'User'}],
   following: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+  saved: [{type: mongoose.Types.ObjectId, ref: 'User'}]
 }, {timestamps: true})
 
 module.exports = mongoose.model('User', UserSchema)
