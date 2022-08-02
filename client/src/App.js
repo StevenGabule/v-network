@@ -17,6 +17,8 @@ import io from 'socket.io-client'
 import { GLOBAL_TYPES } from './redux/actions/globalTypes';
 import SocketClient from './SocketClient';
 
+import { getNotifies } from './redux/actions/notifyAction'
+
 const App = () => {
   const dispatch = useDispatch();
   const { auth, status, modal } = useSelector((state) => state)
@@ -24,14 +26,15 @@ const App = () => {
   useEffect(() => {
     dispatch(refreshToken());
     const socket = io();
-    dispatch({type: GLOBAL_TYPES.SOCKET, payload: socket})
+    dispatch({ type: GLOBAL_TYPES.SOCKET, payload: socket })
     return () => socket.close();
   }, [dispatch])
 
   useEffect(() => {
-    if(auth.token) {
-      dispatch(getPosts(auth.token)) 
-      dispatch(getSuggestions(auth.token)) 
+    if (auth.token) {
+      dispatch(getPosts(auth.token))
+      dispatch(getSuggestions(auth.token))
+      dispatch(getNotifies(auth.token))
     }
   }, [auth.token, dispatch])
 
