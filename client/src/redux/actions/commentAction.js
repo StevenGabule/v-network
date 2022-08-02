@@ -1,5 +1,6 @@
 import { deleteDataAPI, patchDataAPI, postDataAPI } from "../../utils/fetchData";
 import { DeleteData, EditData, GLOBAL_TYPES } from "./globalTypes";
+import { createNotify, removeNotify } from "./notifyAction";
 import { POST_TYPES } from "./postAction";
 
 export const createComment = ({ post, newComment, auth, socket }) => async (dispatch) => {
@@ -14,6 +15,18 @@ export const createComment = ({ post, newComment, auth, socket }) => async (disp
 
     // socket - realtime push comment
     socket.emit('createComment', newPost)
+
+    // create notification
+    const msg = {
+      id: res.data.newComment._id,
+      text: newComment.reply ? "mentioned you in a comment." : "has commented on your post.",
+      recipients: newComment.reply ? [newComment.tag._id] : [post.user._id],
+      url: `/post/${post._id}`,
+      content: post.content,
+      image: post.images[0].url
+    }
+    dispatch(createNotify({msg, auth, socket}))
+
   } catch (err) {
     dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.msg } })
   }
@@ -68,6 +81,13 @@ export const deleteComment = ({post, comment, auth, socket}) => async(dispatch) 
   try {
     deleteArr.forEach((item) => {
       deleteDataAPI(`comment/${item._id}`, auth.token)
+      const msg = {
+        id: item._id,
+        text: comment.reply ? "mentioned you in a comment." : "has commented on your post.",
+        recipients: comment.reply ? [comment.tag._id] : [post.user._id],
+        url: `/post/${post._id}`,
+      }
+      dispatch(removeNotify({msg, auth, socket}))
     })
   } catch (err) {
     dispatch({ type: GLOBAL_TYPES.ALERT, payload: { error: err.response.data.msg } })
