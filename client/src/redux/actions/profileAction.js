@@ -1,7 +1,7 @@
 import { imageUpload } from "../../utils/checkImage";
 import { getDataAPI, patchDataAPI } from "../../utils/fetchData"
 import { DeleteData, GLOBAL_TYPES } from "./globalTypes"
-import { createNotify, removeNotify } from "./notifyAction";
+import { createNotify } from "./notifyAction";
 
 export const PROFILE_TYPES = {
   LOADING: "LOADING_PROFILE",
