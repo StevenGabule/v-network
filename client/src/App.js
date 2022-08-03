@@ -17,7 +17,8 @@ import io from 'socket.io-client'
 import { GLOBAL_TYPES } from './redux/actions/globalTypes';
 import SocketClient from './SocketClient';
 
-import { getNotifies } from './redux/actions/notifyAction'
+import { getNotifies } from './redux/actions/notifyAction';
+
 
 const App = () => {
   const dispatch = useDispatch();
@@ -37,6 +38,20 @@ const App = () => {
       dispatch(getNotifies(auth.token))
     }
   }, [auth.token, dispatch])
+
+  useEffect(() => {
+    if(!("Notification" in window)) {
+      alert('This browser does not sprt')
+    } else if(Notification.permission === "granted") {
+
+    } else if(Notification.permission !== "denied") {
+      Notification.requestPermission().then(function(permission) {
+        if(permission === "granted") {
+
+        }
+      });
+    }
+  }, [])
 
   return (
     <Router>
