@@ -30,24 +30,29 @@ const Carousel = ({images, id}) => {
           </div>
         ))}
       </div>
-      <a
-        style={{width: '5%'}} 
-        href={`#image${id}`} 
-        className="carousel-control-prev" 
-        role="button" 
-        data-slide="prev">
-          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span className="sr-only">Previous</span>
-      </a>
-      <a 
-        style={{width: '5%'}} 
-        href={`#image${id}`} 
-        className="carousel-control-next" 
-        role="button" 
-        data-slide="next">
-          <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          <span className="sr-only">Next</span>
-      </a>
+	  {
+		  images.length > 1 && 
+		    <>
+			  <a
+				style={{width: '5%'}} 
+				href={`#image${id}`} 
+				className="carousel-control-prev" 
+				role="button" 
+				data-slide="prev">
+				  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+				  <span className="sr-only">Previous</span>
+			  </a>
+			  <a 
+				style={{width: '5%'}} 
+				href={`#image${id}`} 
+				className="carousel-control-next" 
+				role="button" 
+				data-slide="next">
+				  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+				  <span className="sr-only">Next</span>
+			  </a>
+		    </>
+	  }
     </div>
   )
 }
