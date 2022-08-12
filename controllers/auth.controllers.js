@@ -47,7 +47,8 @@ const authController = {
   login: async (req, res) => {
     try {
       const {email, password} = req.body;
-      const user = await User.findOne({email}).populate('followers following', '-password')
+      const user = await User.findOne({email})
+								.populate('followers following', 'avatar username fullname followers following')
 
       if (!user) return res.status(400).json({message: "The email does not exists."})
 
@@ -89,10 +90,16 @@ const authController = {
         if (!rf_token) return res.status(400).json({message: "Please login now."})
         jwt.verify(rf_token, process.env.JWT_SECRET_REFRESH_TOKEN, async(err, result) => {
           if (err) return res.status(400).json({message: "Please login now."})
-          const user = await User.findById(result.id).select('-password').populate('followers following', '-password')
-          if (!user) return res.status(400).json({message: "This does not exists."})
-          const access_token = createAccessToken({id: result.id})
-          res.json({
+			  
+          const user = await User.findById(result.id)
+									.select('-password')
+									.populate('followers following', 'avatar username fullname followers following')
+          
+		  if (!user) return res.status(400).json({message: "This does not exists."})
+          
+		  const access_token = createAccessToken({id: result.id})
+          
+		  res.json({
             access_token,
             user
           })

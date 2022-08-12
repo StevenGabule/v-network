@@ -24,6 +24,7 @@ app.use('/api', require('./routes/userRouter'))
 app.use('/api', require('./routes/postRouter'))
 app.use('/api', require('./routes/commentRouter'))
 app.use('/api', require('./routes/notifyRouter'))
+app.use('/api', require('./routes/messageRouter'))
 
 const URI = process.env.MONGO_DB_URI;
 mongoose.connect(URI, {
