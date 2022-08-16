@@ -13,14 +13,14 @@ import LoadIcon from '../../images/loading.gif'
 const RightSide = () => {
   const dispatch = useDispatch()
   const history = useHistory();
-  
-  const { auth, message, theme, socket } = useSelector((state) => state)
+
+  const { auth, message, theme, socket, peer } = useSelector((state) => state)
   const { id } = useParams()
   const [user, setUser] = useState([])
   const [text, setText] = useState('')
   const [media, setMedia] = useState([])
   const [loadMedia, setLoadMedia] = useState(false)
-  
+
   const refDisplay = useRef();
   const pageEnd = useRef();
 
@@ -31,12 +31,12 @@ const RightSide = () => {
 
   useEffect(() => {
     const newData = message.data.find(item => item._id === id)
-    if(newData) {
+    if (newData) {
       setData(newData.messages);
       setResult(newData.result);
       setPage(newData.page);
     }
-  },[id, message.data])
+  }, [id, message.data])
 
   const handleChangeMedia = (e) => {
     const files = [...e.target.files];
@@ -56,12 +56,12 @@ const RightSide = () => {
   useEffect(() => {
     if (id && message.users.length > 0) {
       setTimeout(() => {
-        refDisplay.current.scrollIntoView({behavior: 'smooth', block: 'end'})
+        refDisplay.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
       }, 50)
       const newUser = message.users.find((user) => user._id === id)
-      if(newUser) setUser(newUser)
+      if (newUser) setUser(newUser)
     }
-  }, [message.users,id])
+  }, [message.users, id])
 
   const handleDeleteMedia = (idx) => {
     const newArr = [...media];
@@ -90,20 +90,20 @@ const RightSide = () => {
 
     setLoadMedia(false)
 
-    await dispatch(addMessage({msg, auth, socket}))
+    await dispatch(addMessage({ msg, auth, socket }))
 
-    if(refDisplay.current) {
-      refDisplay.current.scrollIntoView({behavior: 'smooth', block: 'end'})
+    if (refDisplay.current) {
+      refDisplay.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
   }
 
   useEffect(() => {
-    if(id) {
+    if (id) {
       const getMessagesData = async () => {
-        if(message.data.every(item => item._id !== id)) {
-          await dispatch(getMessages({auth,id}))
+        if (message.data.every(item => item._id !== id)) {
+          await dispatch(getMessages({ auth, id }))
           setTimeout(() => {
-            refDisplay.current.scrollIntoView({behavior: 'smooth', block: 'end'})
+            refDisplay.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
           }, 50)
         }
       }
@@ -111,55 +111,67 @@ const RightSide = () => {
     }
   }, [id, dispatch, auth, message.data])
 
-   useEffect(() => {
-     const observer = new IntersectionObserver(entries => {
-       if(entries[0].isIntersecting) {
-         setIsLoadMore(p => p+1)
-       }
-     }, {
-       threshold: 0.1
-     });
-     observer.observe(pageEnd.current)
-   }, [setIsLoadMore])
-  
-   useEffect(() => {
-	   if(isLoadMore > 1) {
-		if(result >= page * 9) {
-		  dispatch(loadMoreMessages({auth, id, page: page + 1}))
-		  setIsLoadMore(1)
-		}   
-	   }
-	// eslint-disable-next-line
-   }, [isLoadMore])
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setIsLoadMore(p => p + 1)
+      }
+    }, {
+      threshold: 0.1
+    });
+    observer.observe(pageEnd.current)
+  }, [setIsLoadMore])
 
-   const handleDeleteConversation = () => {
-	   if(window.confirm('Do you want to delete?')) {
-		   dispatch(deleteConversation({auth,id}))
-		   return history.push('/message')
-	   }
+  useEffect(() => {
+    if (isLoadMore > 1) {
+      if (result >= page * 9) {
+        dispatch(loadMoreMessages({ auth, id, page: page + 1 }))
+        setIsLoadMore(1)
+      }
+    }
+    // eslint-disable-next-line
+  }, [isLoadMore])
+
+  const handleDeleteConversation = () => {
+    if (window.confirm('Do you want to delete?')) {
+      dispatch(deleteConversation({ auth, id }))
+      return history.push('/message')
+    }
+  }
+
+  const callUser = ({ video }) => {
+    const { _id, avatar, username, fullname } = auth.user;
+    const msg = {
+      sender: _id,
+      recipient: user._id,
+      avatar, username, fullname, video
+    }
+    if(peer.open) msg.peerId = peer._id
+    socket.emit('callUser', msg)
    }
-   
-   const caller = ({video}) => {
-	   const {_id, avatar, username, fullname} = user;
-	   const msg = {
-		   sender: auth.user._id,
-		   recipient: _id,
-		   avatar,
-		   username,
-		   fullname,
-		   video
-	   }
-	   dispatch({ type: GLOBAL_TYPES.CALL, payload: msg })
-	   
-   }
-   
-   const handleAudioCall = () => {
-	   caller({video: false})
-   }
-   const handleVideoCall = () => {
-	   caller({video: true})
-   }
-   
+
+  const caller = ({ video }) => {
+    const { _id, avatar, username, fullname } = user;
+    const msg = {
+      sender: auth.user._id,
+      recipient: _id,
+      avatar,
+      username,
+      fullname,
+      video
+    }
+    dispatch({ type: GLOBAL_TYPES.CALL, payload: msg })
+  }
+
+  const handleAudioCall = () => {
+    caller({ video: false })
+    callUser({video: false})
+  }
+  const handleVideoCall = () => {
+    caller({ video: true })
+    callUser({video: true})
+  }
+
   return (
     <>
       <div className='message_header' style={{ cursor: 'pointer' }}>
@@ -167,18 +179,18 @@ const RightSide = () => {
           user.length !== 0 && (
             <UserCard user={user}>
               <div>
-			  
-			  <i className='fas fa-phone-alt' onClick={handleAudioCall} />
-			  <i className='fas fa-video mx-3' onClick={handleVideoCall} />
-			  <i className='fas fa-trash text-danger' onClick={handleDeleteConversation} />
-			  </div>
+
+                <i className='fas fa-phone-alt' onClick={handleAudioCall} />
+                <i className='fas fa-video mx-3' onClick={handleVideoCall} />
+                <i className='fas fa-trash text-danger' onClick={handleDeleteConversation} />
+              </div>
             </UserCard>
           )
         }
       </div>
-      <div className='chat_container' style={{ height: media.length > 0 ? 'calc(100% - 180px)' : ''}}>
+      <div className='chat_container' style={{ height: media.length > 0 ? 'calc(100% - 180px)' : '' }}>
         <div className='chat_display' ref={refDisplay}>
-          <button style={{marginTop: '-25px', opacity: 0}} ref={pageEnd}>Load more</button>
+          <button style={{ marginTop: '-25px', opacity: 0 }} ref={pageEnd}>Load more</button>
           {
             data.map((msg, idx) => (
               <div key={idx}>
@@ -207,14 +219,14 @@ const RightSide = () => {
         </div>
       </div>
 
-      <div className='show_media' style={{display: media.length > 0 ? 'grid' : 'none'}}>
+      <div className='show_media' style={{ display: media.length > 0 ? 'grid' : 'none' }}>
         {
           media.map((item, idx) => (
             <div key={idx} id={"file_media"}>
               {
                 item.type.match(/video/i)
-                ? videoShow(URL.createObjectURL(item), theme)
-                : imageShow(URL.createObjectURL(item), theme)
+                  ? videoShow(URL.createObjectURL(item), theme)
+                  : imageShow(URL.createObjectURL(item), theme)
               }
               <span onClick={() => handleDeleteMedia(idx)}>&times;</span>
             </div>
@@ -223,35 +235,35 @@ const RightSide = () => {
       </div>
 
       <form className='chat_input' onSubmit={handleSubmit}>
-        <input 
-          type={'text'} 
-          placeholder='Enter your message...' 
-          value={text} 
-          onChange={e => setText(e.target.value)} 
+        <input
+          type={'text'}
+          placeholder='Enter your message...'
+          value={text}
+          onChange={e => setText(e.target.value)}
           style={{
             filter: theme ? "invert(1)" : "invert(0)",
             background: theme ? "#040404" : "",
             color: theme ? "white" : ""
           }}
-          />
+        />
 
-          <Icons setContent={setText} content={text} theme={theme} />
+        <Icons setContent={setText} content={text} theme={theme} />
 
-          <div className='file_upload'>
-            <i className='fas fa-image text-danger' />
-            <input 
-              type={'file'} 
-              name='file' 
-              id='file' 
-              multiple 
-              accept='image/*,video/*' 
-              onChange={handleChangeMedia} />
-          </div>
-        <button 
-          disabled={(text || media.length > 0) ? false : true} 
-          type='submit' 
+        <div className='file_upload'>
+          <i className='fas fa-image text-danger' />
+          <input
+            type={'file'}
+            name='file'
+            id='file'
+            multiple
+            accept='image/*,video/*'
+            onChange={handleChangeMedia} />
+        </div>
+        <button
+          disabled={(text || media.length > 0) ? false : true}
+          type='submit'
           className='material-icons'>
-            near_me
+          near_me
         </button>
       </form>
     </>

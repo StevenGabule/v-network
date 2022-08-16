@@ -18,8 +18,9 @@ import { GLOBAL_TYPES } from './redux/actions/globalTypes';
 import SocketClient from './SocketClient';
 
 import { getNotifies } from './redux/actions/notifyAction';
-
 import CallModal from './components/message/CallModal';
+
+import Peer from 'peerjs';
 
 
 const App = () => {
@@ -42,18 +43,25 @@ const App = () => {
   }, [auth.token, dispatch])
 
   useEffect(() => {
-    if(!("Notification" in window)) {
+    if (!("Notification" in window)) {
       alert('This browser does not sprt')
-    } else if(Notification.permission === "granted") {
+    } else if (Notification.permission === "granted") {
 
-    } else if(Notification.permission !== "denied") {
-      Notification.requestPermission().then(function(permission) {
-        if(permission === "granted") {
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (permission) {
+        if (permission === "granted") {
 
         }
       });
     }
   }, [])
+
+  useEffect(() => {
+    const newPeer = new Peer(undefined, {
+      host: "/", port: 3001
+    })
+    dispatch({ type: GLOBAL_TYPES.PEER, payload: newPeer })
+  }, [dispatch])
 
   return (
     <Router>
